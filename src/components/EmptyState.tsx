@@ -3,39 +3,79 @@ interface BosDurumProps {
 }
 
 const ornekSorular = [
-  'Son 30 günün satış raporunu göster',
-  'Aktif müşteri sayısı kaç?',
-  'Stok durumu kritik olan ürünler',
-  'Aylık gelir-gider karşılaştırması',
+  { ikon: 'chart', metin: 'Son 30 günün satış raporunu göster' },
+  { ikon: 'users', metin: 'Aktif müşteri sayısı kaç?' },
+  { ikon: 'box', metin: 'Stok durumu kritik olan ürünler' },
+  { ikon: 'trending', metin: 'Aylık gelir-gider karşılaştırması' },
 ];
+
+const ikonlar: Record<string, JSX.Element> = {
+  chart: (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3v18h18" />
+      <path d="m19 9-5 5-4-4-3 3" />
+    </svg>
+  ),
+  users: (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  box: (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </svg>
+  ),
+  trending: (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+      <polyline points="16 7 22 7 22 13" />
+    </svg>
+  ),
+};
 
 export default function BosDurum({ oneriFn }: BosDurumProps) {
   return (
     <div className="flex-1 flex items-center justify-center p-6">
-      <div className="max-w-lg text-center">
-        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary-100 flex items-center justify-center">
-          <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-          </svg>
+      <div className="max-w-2xl w-full text-center">
+        {/* Logo */}
+        <div className="mb-8">
+          <img 
+            src="/simge.png" 
+            alt="Taytech AI" 
+            className="h-20 w-auto mx-auto object-contain"
+          />
         </div>
 
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Merhaba! Ben Ercüment
+        {/* Title */}
+        <h2 className="text-3xl font-medium text-neutral-100 mb-3">
+          Ben Ercüment, size nasıl yardımcı olabilirim?
         </h2>
-        <p className="text-gray-500 mb-8 leading-relaxed">
-          SQL asistanınızım. Veritabanınız hakkında sorularınızı doğal dilde sorabilirsiniz.
-          Size doğru SQL sorgularını oluşturup sonuçları getireceğim.
+        <p className="text-neutral-500 mb-12 max-w-md mx-auto text-base">
+          Kurumsal verileriniz hakkında sorular sorun, analizler yapın.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {ornekSorular.map((metin) => (
+        {/* Suggestions */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto">
+          {ornekSorular.map(({ ikon, metin }) => (
             <button
               key={metin}
               onClick={() => oneriFn(metin)}
-              className="text-left px-4 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-primary-200 text-sm text-gray-600 hover:text-gray-800 transition-all shadow-sm hover:shadow"
+              className="group text-left px-5 py-4 rounded-2xl bg-neutral-800/30 border border-neutral-800 hover:bg-neutral-800/60 hover:border-neutral-700 transition-all"
             >
-              <span className="text-primary-500 mr-1.5">&#8594;</span>
-              {metin}
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-neutral-800 group-hover:bg-neutral-700 flex items-center justify-center shrink-0 transition-colors text-neutral-400 group-hover:text-neutral-300">
+                  {ikonlar[ikon]}
+                </div>
+                <span className="text-sm text-neutral-400 group-hover:text-neutral-200 transition-colors leading-relaxed">
+                  {metin}
+                </span>
+              </div>
             </button>
           ))}
         </div>

@@ -1,160 +1,415 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useRef, useEffect, KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { girisKullan } from '../context/AuthContext';
+import { kullaniciKontrolApi, girisYapApi } from '../services/api';
 import Bildirim from '../components/Toast';
 
 export default function GirisSayfasi() {
   const [kullaniciAdi, kullaniciAdiAyarla] = useState('');
-  const [sifre, sifreAyarla] = useState('');
+  const [adim, adimAyarla] = useState<'kullanici' | 'pin'>('kullanici');
+  const [pin, pinAyarla] = useState<string[]>(['', '', '', '', '', '']);
   const [yukleniyor, yukleniyorAyarla] = useState(false);
   const [hata, hataAyarla] = useState<string | null>(null);
+  const [basarili, basariliAyarla] = useState(false);
+  const [hatali, hataliAyarla] = useState(false);
+  const [kullaniciHatali, kullaniciHataliAyarla] = useState(false);
+  const [odaklanmisGirdi, odaklanmisGirdiAyarla] = useState<string | null>(null);
+  const [gecisYapiliyor, gecisYapiliyorAyarla] = useState(false);
 
+  const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
   const { girisYap } = girisKullan();
   const yonlendir = useNavigate();
 
-  const formGonder = async (e: FormEvent) => {
-    e.preventDefault();
-    hataAyarla(null);
+  // PIN tamamlandığında otomatik giriş
+  useEffect(() => {
+    const tamPin = pin.join('');
+    if (tamPin.length === 6 && adim === 'pin' && !hatali) {
+      girisKontrol(tamPin);
+    }
+  }, [pin]);
 
-    if (!kullaniciAdi.trim() || !sifre.trim()) {
-      hataAyarla('Lütfen kullanıcı adı ve şifre girin.');
+  const kullaniciAdiGonder = async (e: FormEvent) => {
+    e.preventDefault();
+    kullaniciHataliAyarla(false);
+
+    if (!kullaniciAdi.trim()) {
+      kullaniciHataliAyarla(true);
       return;
     }
 
+    // Kullanıcı adını kontrol et
     yukleniyorAyarla(true);
     try {
-      const sonuc = await girisYap(kullaniciAdi.trim(), sifre.trim());
-      if (sonuc.basarili) {
-        yonlendir('/chat', { replace: true });
-      } else {
-        hataAyarla(sonuc.mesaj);
+      const sonuc = await kullaniciKontrolApi(kullaniciAdi.trim());
+      
+      if (!sonuc.gecerli) {
+        kullaniciHataliAyarla(true);
+        
+        // 2 saniye sonra kırmızı çerçeveyi kaldır
+        setTimeout(() => {
+          kullaniciHataliAyarla(false);
+        }, 2000);
+        return;
       }
+
+      // Kullanıcı geçerli, PIN adımına geç
+      gecisYapiliyorAyarla(true);
+      
+      setTimeout(() => {
+        adimAyarla('pin');
+        gecisYapiliyorAyarla(false);
+        setTimeout(() => {
+          pinRefs.current[0]?.focus();
+        }, 50);
+      }, 250);
     } catch {
-      hataAyarla('Bir hata oluştu. Lütfen tekrar deneyin.');
+      kullaniciHataliAyarla(true);
     } finally {
       yukleniyorAyarla(false);
     }
+  };
+
+  const pinDegistir = (index: number, deger: string) => {
+    // Sadece rakam kabul et
+    if (deger && !/^\d$/.test(deger)) return;
+
+    // Hatalı durumda yeni giriş yapılınca hata durumunu sıfırla
+    if (hatali) {
+      hataliAyarla(false);
+    }
+
+    const yeniPin = [...pin];
+    yeniPin[index] = deger;
+    pinAyarla(yeniPin);
+
+    // Sonraki kutuya geç
+    if (deger && index < 5) {
+      pinRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const pinTusBasimi = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+    // Backspace ile önceki kutuya dön
+    if (e.key === 'Backspace' && !pin[index] && index > 0) {
+      pinRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const pinYapistir = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const yapistirilan = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (yapistirilan) {
+      if (hatali) {
+        hataliAyarla(false);
+      }
+      const yeniPin = [...pin];
+      for (let i = 0; i < yapistirilan.length && i < 6; i++) {
+        yeniPin[i] = yapistirilan[i];
+      }
+      pinAyarla(yeniPin);
+      // Son dolu kutuya odaklan
+      const sonDoluIndex = Math.min(yapistirilan.length - 1, 5);
+      pinRefs.current[sonDoluIndex]?.focus();
+    }
+  };
+
+  const girisKontrol = async (sifre: string) => {
+    yukleniyorAyarla(true);
+    try {
+      // Önce sadece API ile kontrol et (kullanıcı kaydı yapmadan)
+      const sonuc = await girisYapApi(kullaniciAdi.trim(), sifre);
+      yukleniyorAyarla(false);
+      
+      if (sonuc.basarili) {
+        // Yeşil efekt göster
+        basariliAyarla(true);
+        
+        // 2 saniye bekle, sonra kullanıcıyı kaydet (bu yönlendirmeyi tetikleyecek)
+        setTimeout(async () => {
+          await girisYap(kullaniciAdi.trim(), sifre);
+        }, 2000);
+      } else {
+        // Kırmızı efekt göster
+        hataliAyarla(true);
+        
+        // 1 saniye sonra temizle ve ilk kutuya geç
+        setTimeout(() => {
+          pinAyarla(['', '', '', '', '', '']);
+          hataliAyarla(false);
+          // İmleci ilk kutuya taşı
+          setTimeout(() => {
+            pinRefs.current[0]?.focus();
+          }, 50);
+        }, 1000);
+      }
+    } catch {
+      yukleniyorAyarla(false);
+      hataliAyarla(true);
+      
+      setTimeout(() => {
+        pinAyarla(['', '', '', '', '', '']);
+        hataliAyarla(false);
+        // İmleci ilk kutuya taşı
+        setTimeout(() => {
+          pinRefs.current[0]?.focus();
+        }, 50);
+      }, 1000);
+    }
+  };
+
+  const geriDon = () => {
+    gecisYapiliyorAyarla(true);
+    
+    setTimeout(() => {
+      adimAyarla('kullanici');
+      pinAyarla(['', '', '', '', '', '']);
+      hataAyarla(null);
+      basariliAyarla(false);
+      hataliAyarla(false);
+      gecisYapiliyorAyarla(false);
+    }, 250);
   };
 
   return (
     <div className="min-h-screen flex">
       {hata && <Bildirim mesaj={hata} tur="error" kapatFn={() => hataAyarla(null)} />}
 
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold">BI-Agent</h1>
+      {/* Sol Taraf - Siyah Zemin */}
+      <div className="hidden lg:flex lg:w-1/2 bg-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-black" />
+        
+        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12">
+          {/* Logo */}
+          <div className="mb-12">
+            <img 
+              src="/simge.png" 
+              alt="Taytech Logo" 
+              className="h-32 w-auto object-contain"
+            />
           </div>
 
-          <h2 className="text-4xl font-bold leading-tight mb-4">
-            Verilerinizi
+          {/* Yazılar */}
+          <div className="text-center max-w-md">
+            <h1 className="text-4xl font-medium text-white leading-tight tracking-tight">
+              Kurumsal Karar
             <br />
-            Doğal Dille
-            <br />
-            Sorgulayın
-          </h2>
-
-          <p className="text-lg text-primary-100 mb-10 max-w-md leading-relaxed">
-            Karmaşık SQL sorguları yazmak yerine, sorularınızı Türkçe olarak sorun.
-            Akıllı asistanımız sizin için doğru sorguları oluştursun.
-          </p>
-
-          <div className="space-y-4">
-            {[
-              { ikon: 'M13 10V3L4 14h7v7l9-11h-7z', yazi: 'Hızlı ve kolay veri sorgulama' },
-              { ikon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', yazi: 'Detaylı veri analizleri' },
-              { ikon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z', yazi: 'Doğal dil ile SQL sorguları' },
-            ].map((ozellik) => (
-              <div key={ozellik.yazi} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d={ozellik.ikon} />
-                  </svg>
+              <span className="text-neutral-400">Destek Sistemi</span>
+            </h1>
+            
+            <p className="mt-6 text-base text-neutral-500 leading-relaxed">
+              Taytech iç yapay zeka asistanı ile veriye dayalı kararlar alın.
+              Kurumsal bilgilerinize anında erişin.
+            </p>
                 </div>
-                <span className="text-sm text-primary-100">{ozellik.yazi}</span>
-              </div>
-            ))}
+
+          {/* Alt yazı */}
+          <div className="absolute bottom-8 left-0 right-0 text-center">
+            <span className="text-[10px] text-neutral-700 uppercase tracking-[0.3em]">
+              Powered by Taytech
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
-            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-              </svg>
-            </div>
-            <span className="text-2xl font-bold text-gray-800">BI-Agent</span>
+      {/* Sağ Taraf - Açık Gri Zemin */}
+      <div className="flex-1 flex items-center justify-center bg-neutral-100">
+        <div className="w-full max-w-sm px-8">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex flex-col items-center mb-12">
+            <img 
+              src="/simge.png" 
+              alt="Taytech Logo" 
+              className="h-16 w-auto object-contain mb-4"
+            />
+            <span className="text-sm text-neutral-400 uppercase tracking-widest">
+              Kurumsal Karar Destek Sistemi
+            </span>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Hoş Geldiniz</h2>
-            <p className="text-gray-500 mt-1">Hesabınıza giriş yapın</p>
+          {/* Form Container */}
+          <div className={`transition-opacity duration-200 ease-out ${gecisYapiliyor ? 'opacity-0' : 'opacity-100'}`}>
+            {adim === 'kullanici' ? (
+              /* Kullanıcı Adı Adımı */
+              <div>
+                <div className="mb-10">
+                  <h2 className="text-4xl font-medium text-neutral-900 tracking-tight">
+                    Giriş Yap
+                  </h2>
+                  <p className="text-neutral-500 mt-3 text-base">
+                    Kurumsal hesabınızla devam edin
+                  </p>
           </div>
 
-          <form onSubmit={formGonder} className="space-y-5">
+                <form onSubmit={kullaniciAdiGonder} className="space-y-6">
             <div>
-              <label htmlFor="kullaniciAdi" className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label 
+                      htmlFor="kullaniciAdi" 
+                      className="block text-sm font-medium text-neutral-500 mb-2 uppercase tracking-wider"
+                    >
                 Kullanıcı Adı
               </label>
+                    <div className={`relative transition-all duration-200 ${
+                      odaklanmisGirdi === 'kullaniciAdi' && !kullaniciHatali ? 'transform scale-[1.02]' : ''
+                    }`}>
               <input
                 id="kullaniciAdi"
                 type="text"
                 value={kullaniciAdi}
-                onChange={(e) => kullaniciAdiAyarla(e.target.value)}
-                placeholder="Kullanıcı adınızı girin"
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
+                        onChange={(e) => {
+                          kullaniciAdiAyarla(e.target.value);
+                          if (kullaniciHatali) kullaniciHataliAyarla(false);
+                        }}
+                        onFocus={() => odaklanmisGirdiAyarla('kullaniciAdi')}
+                        onBlur={() => odaklanmisGirdiAyarla(null)}
+                        placeholder="örn: kullanici"
+                        disabled={yukleniyor}
+                        className={`w-full px-4 py-4 bg-white rounded-md text-neutral-900 text-base placeholder-neutral-400 transition-all duration-200 border-2 ${
+                          kullaniciHatali
+                            ? 'border-red-500 bg-red-50'
+                            : odaklanmisGirdi === 'kullaniciAdi'
+                              ? 'border-neutral-400 shadow-lg'
+                              : 'border-transparent shadow-sm hover:shadow-md'
+                        } ${yukleniyor ? 'opacity-50' : ''}`}
                 autoFocus
               />
             </div>
-
-            <div>
-              <label htmlFor="sifre" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Şifre
-              </label>
-              <input
-                id="sifre"
-                type="password"
-                value={sifre}
-                onChange={(e) => sifreAyarla(e.target.value)}
-                placeholder="Şifrenizi girin"
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
-              />
+                    {kullaniciHatali && (
+                      <p className="mt-2 text-sm text-red-500">Kullanıcı bulunamadı</p>
+                    )}
             </div>
 
             <button
               type="submit"
               disabled={yukleniyor}
-              className="w-full py-2.5 px-4 bg-primary-600 text-white rounded-xl font-medium text-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                    className="w-full py-4 px-4 bg-neutral-900 text-white rounded-md font-medium text-base hover:bg-black focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 focus:ring-offset-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] mt-8"
             >
               {yukleniyor ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Giriş yapılıyor...
+                        Kontrol ediliyor...
                 </span>
               ) : (
-                'Giriş Yap'
+                      'Devam Et'
               )}
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-8">
-            BI-Agent SQL Asistanı v1.0
+                {/* Footer */}
+                <div className="mt-12 pt-8 border-t border-neutral-200">
+                  <p className="text-center text-sm text-neutral-400">
+                    Sadece yetkili Taytech personeli erişebilir.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              /* PIN Adımı */
+              <div>
+                <button
+                  onClick={geriDon}
+                  className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-colors mb-8"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <span className="text-base">Geri</span>
+                </button>
+
+                <div className="mb-10">
+                  <h2 className="text-4xl font-medium text-neutral-900 tracking-tight">
+                    PIN Kodunuz
+                  </h2>
+                  <p className="text-neutral-500 mt-3 text-base">
+                    6 haneli güvenlik kodunuzu girin
+                  </p>
+                </div>
+
+                {/* PIN Kutuları */}
+                <div className="mb-8">
+                  <label className="block text-sm font-medium text-neutral-500 mb-2 uppercase tracking-wider">
+                    Güvenlik Kodu
+                  </label>
+                  <div className="flex gap-2">
+                    {pin.map((rakam, index) => (
+                      <input
+                        key={index}
+                        ref={(el) => { pinRefs.current[index] = el; }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={rakam}
+                        onChange={(e) => pinDegistir(index, e.target.value)}
+                        onKeyDown={(e) => pinTusBasimi(index, e)}
+                        onPaste={index === 0 ? pinYapistir : undefined}
+                        disabled={yukleniyor || basarili || hatali}
+                        className={`w-12 h-14 text-center text-2xl font-medium bg-white rounded-md transition-all duration-300 border-2 focus:outline-none ${
+                          basarili
+                            ? 'border-green-500 bg-green-50 text-green-600'
+                            : hatali
+                              ? 'border-red-500 bg-red-50 text-red-600'
+                              : rakam
+                                ? 'border-neutral-400 shadow-md'
+                                : 'border-neutral-200 hover:border-neutral-300 focus:border-neutral-400 focus:shadow-lg'
+                        } ${yukleniyor ? 'opacity-50' : ''}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Yükleniyor göstergesi */}
+                {yukleniyor && (
+                  <div className="flex justify-center mb-6">
+                    <svg className="animate-spin h-6 w-6 text-neutral-900" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Başarılı mesajı */}
+                {basarili && (
+                  <div className="flex flex-col items-center gap-3 mb-6">
+                    <div className="flex items-center justify-center gap-2 text-green-600">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-base font-medium">Giriş başarılı</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-neutral-500">
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span className="text-sm">Sunucuya bağlanılıyor...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hatalı mesajı */}
+                {hatali && (
+                  <div className="flex items-center justify-center gap-2 text-red-600 mb-6">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-base font-medium">Hatalı PIN kodu</span>
+                  </div>
+                )}
+
+                {/* Kullanıcı bilgisi */}
+                <div className="text-center mt-6">
+                  <p className="text-sm text-neutral-400">
+                    <span className="text-neutral-600 font-medium">{kullaniciAdi}</span> olarak giriş yapılıyor
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Version */}
+          <p className="text-center text-sm text-neutral-300 mt-6">
+            v1.0.0
           </p>
         </div>
       </div>

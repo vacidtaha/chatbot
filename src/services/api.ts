@@ -69,17 +69,32 @@ const sahteCevaplar: { yazi: string; tabloVerisi?: TabloVerisi }[] = [
 
 let cevapSayaci = 0;
 
+// Geçerli kullanıcılar
+const gecerliKullanicilar = ['Zess'];
+
+export async function kullaniciKontrolApi(
+  kullaniciAdi: string
+): Promise<{ gecerli: boolean; mesaj: string }> {
+  await bekle(500);
+
+  if (gecerliKullanicilar.includes(kullaniciAdi)) {
+    return { gecerli: true, mesaj: 'Kullanıcı bulundu' };
+  }
+
+  return { gecerli: false, mesaj: 'Kullanıcı bulunamadı' };
+}
+
 export async function girisYapApi(
   kullaniciAdi: string,
   sifre: string
 ): Promise<{ basarili: boolean; mesaj: string }> {
   await bekle(800);
 
-  if (kullaniciAdi === 'Zess' && sifre === 'Zess') {
+  if (kullaniciAdi === 'Zess' && sifre === '123456') {
     return { basarili: true, mesaj: 'Giriş başarılı' };
   }
 
-  return { basarili: false, mesaj: 'Kullanıcı adı veya şifre hatalı' };
+  return { basarili: false, mesaj: 'Hatalı PIN kodu' };
 }
 
 export async function mesajGonderApi(_mesaj: string): Promise<Mesaj> {

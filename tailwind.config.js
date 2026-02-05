@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Neue Haas Display', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#eef2ff',

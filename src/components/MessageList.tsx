@@ -16,14 +16,16 @@ export default function MesajListesi({ mesajlar, yukleniyor }: MesajListesiProps
   }, [mesajlar, yukleniyor]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 chat-scroll">
-      {mesajlar.map((mesaj) => (
-        <MesajBalonu key={mesaj.id} mesaj={mesaj} />
-      ))}
+    <div className="flex-1 overflow-y-auto chat-scroll">
+      <div className="max-w-4xl mx-auto px-6 py-10 space-y-12">
+        {mesajlar.map((mesaj) => (
+          <MesajBalonu key={mesaj.id} mesaj={mesaj} />
+        ))}
 
-      {yukleniyor && <YaziyorGostergesi />}
+        {yukleniyor && <YaziyorGostergesi />}
 
-      <div ref={altRef} />
+        <div ref={altRef} />
+      </div>
     </div>
   );
 }

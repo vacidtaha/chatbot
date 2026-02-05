@@ -13,7 +13,7 @@ export default function SohbetGirdisi({ gonderFn, devreDisi }: SohbetGirdisiProp
     const ta = textareaRef.current;
     if (ta) {
       ta.style.height = 'auto';
-      ta.style.height = Math.min(ta.scrollHeight, 150) + 'px';
+      ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
     }
   };
 
@@ -39,33 +39,49 @@ export default function SohbetGirdisi({ gonderFn, devreDisi }: SohbetGirdisiProp
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
-      <div className="max-w-4xl mx-auto flex items-end gap-3">
-        <div className="flex-1 relative">
-          <textarea
-            ref={textareaRef}
-            value={deger}
-            onChange={(e) => degerAyarla(e.target.value)}
-            onKeyDown={klavyeIsle}
-            placeholder="Mesajınızı yazın..."
-            disabled={devreDisi}
-            rows={1}
-            className="w-full resize-none rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 focus:bg-white disabled:opacity-50 transition-all"
-          />
+    <div className="bg-neutral-900 p-6 pb-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="relative">
+          {/* Main Input Container */}
+          <div className="bg-neutral-800 rounded-2xl border border-neutral-700 focus-within:border-neutral-500 transition-all shadow-lg flex items-end">
+            <textarea
+              ref={textareaRef}
+              value={deger}
+              onChange={(e) => degerAyarla(e.target.value)}
+              onKeyDown={klavyeIsle}
+              placeholder="Taytech AI'a bir şey sorun..."
+              disabled={devreDisi}
+              rows={1}
+              className="flex-1 resize-none bg-transparent px-5 py-4 text-neutral-100 text-base placeholder-neutral-500 focus:outline-none disabled:opacity-50 min-h-[56px]"
+            />
+            
+            {/* Send Button */}
+            <div className="p-2">
+              <button
+                onClick={gonder}
+                disabled={!deger.trim() || devreDisi}
+                className="p-3 rounded-xl bg-white text-neutral-900 hover:bg-neutral-100 disabled:opacity-20 disabled:cursor-not-allowed transition-all disabled:hover:bg-white"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Info */}
+          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-neutral-600">
+            <div className="flex items-center gap-1.5">
+              <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono text-[10px]">Enter</kbd>
+              <span>gönder</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono text-[10px]">Shift + Enter</kbd>
+              <span>yeni satır</span>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={gonder}
-          disabled={!deger.trim() || devreDisi}
-          className="shrink-0 w-11 h-11 rounded-xl bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-          </svg>
-        </button>
       </div>
-      <p className="text-center text-xs text-gray-400 mt-2">
-        Enter ile gönder, Shift+Enter ile yeni satır
-      </p>
     </div>
   );
 }

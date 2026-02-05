@@ -22,7 +22,7 @@ export default function SohbetSayfasi() {
     mesajGonder,
   } = sohbetKullan();
 
-  const [menuAcik, menuAcikAyarla] = useState(false);
+  const [sidebarAcik, sidebarAcikAyarla] = useState(true);
 
   const mesajIsle = (mesaj: string) => {
     mesajGonder(mesaj);
@@ -32,13 +32,18 @@ export default function SohbetSayfasi() {
     mesajGonder(metin);
   };
 
+  const sidebarToggle = () => {
+    sidebarAcikAyarla(!sidebarAcik);
+  };
+
   return (
-    <div className="h-screen flex bg-slate-50">
+    <div className="h-screen flex bg-neutral-950">
+      {/* Sidebar */}
       <YanMenu
         sohbetler={sohbetler}
         suankiSohbetId={suankiSohbetId}
-        acikMi={menuAcik}
-        kapatFn={() => menuAcikAyarla(false)}
+        acikMi={sidebarAcik}
+        kapatFn={() => sidebarAcikAyarla(false)}
         yeniSohbetFn={yeniSohbetOlustur}
         sohbetSecFn={sohbetSec}
         sohbetSilFn={sohbetiSil}
@@ -47,8 +52,12 @@ export default function SohbetSayfasi() {
         kullaniciAdi={kullanici?.kullaniciAdi || 'Kullanıcı'}
       />
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <SohbetBasligi menuAcKapaFn={() => menuAcikAyarla(true)} />
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-w-0 bg-neutral-900">
+        <SohbetBasligi 
+          sidebarAcikMi={sidebarAcik}
+          sidebarToggleFn={sidebarToggle}
+        />
 
         {suankiSohbet && suankiSohbet.mesajlar.length > 0 ? (
           <MesajListesi mesajlar={suankiSohbet.mesajlar} yukleniyor={yukleniyor} />
