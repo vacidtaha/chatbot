@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { SohbetOturumu, Mesaj } from '../types';
 import {
   kayitliSohbetleriGetir,
@@ -16,6 +16,7 @@ export function sohbetKullan() {
   const [sohbetler, sohbetleriAyarla] = useState<SohbetOturumu[]>(() => kayitliSohbetleriGetir());
   const [suankiSohbetId, suankiIdAyarla] = useState<string | null>(() => suankiSohbetIdGetir());
   const [yukleniyor, yukleniyorAyarla] = useState(false);
+  const streamingRef = useRef<NodeJS.Timeout | null>(null);
 
   const suankiSohbet = sohbetler.find((s) => s.id === suankiSohbetId) || null;
 
@@ -26,6 +27,15 @@ export function sohbetKullan() {
   useEffect(() => {
     suankiSohbetIdKaydet(suankiSohbetId);
   }, [suankiSohbetId]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (streamingRef.current) {
+        clearInterval(streamingRef.current);
+      }
+    };
+  }, []);
 
   const yeniSohbetOlustur = useCallback(() => {
     const yeniOturum: SohbetOturumu = {
@@ -57,6 +67,58 @@ export function sohbetKullan() {
   const tumSohbetleriSil = useCallback(() => {
     sohbetleriAyarla([]);
     suankiIdAyarla(null);
+  }, []);
+
+  const streamingBaslat = useCallback((oturumId: string, mesajId: string, tamIcerik: string) => {
+    const kelimeler = tamIcerik.split(' ');
+    let index = 0;
+    
+    // Her 100ms'de bir kelime ilerle (yavaş)
+    streamingRef.current = setInterval(() => {
+      index++;
+      
+      // Tüm kelimeler %100 olana kadar devam et
+      if (index >= kelimeler.length + 9) {
+        if (streamingRef.current) {
+          clearInterval(streamingRef.current);
+          streamingRef.current = null;
+        }
+        
+        sohbetleriAyarla((onceki) =>
+          onceki.map((s) => {
+            if (s.id !== oturumId) return s;
+            return {
+              ...s,
+              mesajlar: s.mesajlar.map((m) => {
+                if (m.id !== mesajId) return m;
+                return {
+                  ...m,
+                  gosterilenIcerik: String(kelimeler.length + 9),
+                  streamingMi: false,
+                };
+              }),
+            };
+          })
+        );
+        return;
+      }
+      
+      sohbetleriAyarla((onceki) =>
+        onceki.map((s) => {
+          if (s.id !== oturumId) return s;
+          return {
+            ...s,
+            mesajlar: s.mesajlar.map((m) => {
+              if (m.id !== mesajId) return m;
+              return {
+                ...m,
+                gosterilenIcerik: String(index),
+              };
+            }),
+          };
+        })
+      );
+    }, 100);
   }, []);
 
   const mesajGonder = useCallback(
@@ -104,16 +166,30 @@ export function sohbetKullan() {
 
       try {
         const cevap = await mesajGonderApi(icerik);
+        
+        // Streaming mesajı ekle
+        const streamingMesaj: Mesaj = {
+          ...cevap,
+          gosterilenIcerik: '',
+          streamingMi: true,
+        };
+        
         sohbetleriAyarla((onceki) =>
           onceki.map((s) => {
             if (s.id !== oturumId) return s;
             return {
               ...s,
-              mesajlar: [...s.mesajlar, cevap],
+              mesajlar: [...s.mesajlar, streamingMesaj],
               guncellemeTarihi: Date.now(),
             };
           })
         );
+        
+        yukleniyorAyarla(false);
+        
+        // Streaming başlat
+        streamingBaslat(oturumId, cevap.id, cevap.icerik);
+        
       } catch {
         const hataMesaji: Mesaj = {
           id: rastgeleIdOlustur(),
@@ -132,11 +208,10 @@ export function sohbetKullan() {
             };
           })
         );
-      } finally {
         yukleniyorAyarla(false);
       }
     },
-    [suankiSohbetId]
+    [suankiSohbetId, streamingBaslat]
   );
 
   return {

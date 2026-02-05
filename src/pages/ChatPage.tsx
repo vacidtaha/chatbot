@@ -18,7 +18,6 @@ export default function SohbetSayfasi() {
     yeniSohbetOlustur,
     sohbetSec,
     sohbetiSil,
-    tumSohbetleriSil,
     mesajGonder,
   } = sohbetKullan();
 
@@ -32,9 +31,8 @@ export default function SohbetSayfasi() {
     mesajGonder(metin);
   };
 
-  const sidebarToggle = () => {
-    sidebarAcikAyarla(!sidebarAcik);
-  };
+  // Streaming durumunu kontrol et - son mesaj AI mesajı ve streamingMi true ise
+  const streamingMi = suankiSohbet?.mesajlar.some(m => m.streamingMi) ?? false;
 
   return (
     <div className="h-screen flex bg-neutral-950">
@@ -44,10 +42,10 @@ export default function SohbetSayfasi() {
         suankiSohbetId={suankiSohbetId}
         acikMi={sidebarAcik}
         kapatFn={() => sidebarAcikAyarla(false)}
+        acFn={() => sidebarAcikAyarla(true)}
         yeniSohbetFn={yeniSohbetOlustur}
         sohbetSecFn={sohbetSec}
         sohbetSilFn={sohbetiSil}
-        hepsiniTemizleFn={tumSohbetleriSil}
         cikisYapFn={cikisYap}
         kullaniciAdi={kullanici?.kullaniciAdi || 'Kullanıcı'}
       />
@@ -55,8 +53,8 @@ export default function SohbetSayfasi() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 bg-neutral-900">
         <SohbetBasligi 
+          yeniSohbetFn={yeniSohbetOlustur}
           sidebarAcikMi={sidebarAcik}
-          sidebarToggleFn={sidebarToggle}
         />
 
         {suankiSohbet && suankiSohbet.mesajlar.length > 0 ? (
@@ -65,7 +63,7 @@ export default function SohbetSayfasi() {
           <BosDurum oneriFn={oneriIsle} />
         )}
 
-        <SohbetGirdisi gonderFn={mesajIsle} devreDisi={yukleniyor} />
+        <SohbetGirdisi gonderFn={mesajIsle} devreDisi={yukleniyor} streamingMi={streamingMi} />
       </main>
     </div>
   );

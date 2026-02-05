@@ -30,11 +30,16 @@ export default {
       },
       animation: {
         'bounce-dot': 'bounce-dot 1.4s infinite ease-in-out both',
+        'shimmer': 'shimmer 2s infinite linear',
       },
       keyframes: {
         'bounce-dot': {
           '0%, 80%, 100%': { transform: 'scale(0)' },
           '40%': { transform: 'scale(1)' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
         },
       },
     },

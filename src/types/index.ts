@@ -13,6 +13,8 @@ export interface Mesaj {
   id: string;
   rol: 'user' | 'assistant';
   icerik: string;
+  gosterilenIcerik?: string;
+  streamingMi?: boolean;
   icerikTuru: MesajIcerikTuru;
   tabloVerisi?: TabloVerisi;
   zamanDamgasi: number;
