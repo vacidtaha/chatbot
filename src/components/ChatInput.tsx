@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { temaKullan } from '../context/ThemeContext';
+import { birlesik } from '../utils/cn';
 
 interface SohbetGirdisiProps {
   gonderFn: (mesaj: string) => void;
@@ -7,6 +9,7 @@ interface SohbetGirdisiProps {
 }
 
 export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false }: SohbetGirdisiProps) {
+  const { temaKoyuMu } = temaKullan();
   const [deger, degerAyarla] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -40,14 +43,24 @@ export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false
   };
 
   return (
-    <div className="bg-neutral-900">
+    <div className={temaKoyuMu ? 'bg-neutral-900' : 'bg-white'}>
       <div className="max-w-3xl mx-auto px-4 py-4">
         {/* Input Container - Pill Shape */}
-        <div className="relative bg-neutral-800 rounded-full border border-neutral-700 focus-within:border-neutral-500 transition-all shadow-lg">
+        <div className={birlesik(
+          'relative rounded-full border transition-all shadow-lg',
+          temaKoyuMu 
+            ? 'bg-neutral-800 border-neutral-700 focus-within:border-neutral-500' 
+            : 'bg-neutral-100 border-neutral-200 focus-within:border-neutral-400'
+        )}>
           <div className="flex items-end">
             {/* Attachment Button */}
             <button 
-              className="p-4 text-neutral-500 hover:text-neutral-300 transition-colors"
+              className={birlesik(
+                'p-4 transition-colors',
+                temaKoyuMu 
+                  ? 'text-neutral-500 hover:text-neutral-300' 
+                  : 'text-neutral-400 hover:text-neutral-600'
+              )}
               title="Dosya ekle"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -64,7 +77,12 @@ export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false
               placeholder="Mesaj gönderin..."
               disabled={devreDisi}
               rows={1}
-              className="flex-1 resize-none bg-transparent py-4 pr-2 text-neutral-100 text-base placeholder-neutral-500 focus:outline-none disabled:opacity-50 min-h-[56px] max-h-[200px]"
+              className={birlesik(
+                'flex-1 resize-none bg-transparent py-4 pr-2 text-base focus:outline-none disabled:opacity-50 min-h-[56px] max-h-[200px]',
+                temaKoyuMu 
+                  ? 'text-neutral-100 placeholder-neutral-500' 
+                  : 'text-neutral-900 placeholder-neutral-400'
+              )}
             />
             
             {/* Send Button */}
@@ -72,7 +90,12 @@ export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false
               <button
                 onClick={gonder}
                 disabled={!deger.trim() || devreDisi || streamingMi}
-                className="w-10 h-10 rounded-full bg-white text-neutral-900 hover:bg-neutral-200 disabled:opacity-20 disabled:cursor-not-allowed transition-all disabled:hover:bg-white flex items-center justify-center"
+                className={birlesik(
+                  'w-10 h-10 rounded-full disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center justify-center',
+                  temaKoyuMu 
+                    ? 'bg-white text-neutral-900 hover:bg-neutral-200 disabled:hover:bg-white' 
+                    : 'bg-neutral-900 text-white hover:bg-neutral-700 disabled:hover:bg-neutral-900'
+                )}
               >
                 {streamingMi ? (
                   <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -90,7 +113,10 @@ export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false
         </div>
 
         {/* Disclaimer */}
-        <p className="text-center text-xs text-neutral-600 mt-3">
+        <p className={birlesik(
+          'text-center text-xs mt-3',
+          temaKoyuMu ? 'text-neutral-600' : 'text-neutral-400'
+        )}>
           Ercüment hata yapabilir. Önemli bilgileri doğrulayın.
         </p>
       </div>

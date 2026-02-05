@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { Mesaj } from '../types';
 import MesajBalonu from './MessageBubble';
 import YaziyorGostergesi from './TypingIndicator';
+import { temaKullan } from '../context/ThemeContext';
+import { birlesik } from '../utils/cn';
 
 interface MesajListesiProps {
   mesajlar: Mesaj[];
@@ -9,6 +11,7 @@ interface MesajListesiProps {
 }
 
 export default function MesajListesi({ mesajlar, yukleniyor }: MesajListesiProps) {
+  const { temaKoyuMu } = temaKullan();
   const altRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,13 +22,23 @@ export default function MesajListesi({ mesajlar, yukleniyor }: MesajListesiProps
     <div className="flex-1 relative overflow-hidden">
       {/* Üst Gradient Fade + Blur */}
       <div className="absolute top-0 left-0 right-0 h-20 z-10 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent" />
+        <div className={birlesik(
+          'absolute inset-0 bg-gradient-to-b to-transparent',
+          temaKoyuMu 
+            ? 'from-neutral-900 via-neutral-900/80' 
+            : 'from-white via-white/80'
+        )} />
         <div className="absolute inset-0 backdrop-blur-sm [mask-image:linear-gradient(to_bottom,black_30%,transparent_100%)]" />
       </div>
       
       {/* Alt Gradient Fade + Blur */}
       <div className="absolute bottom-0 left-0 right-0 h-20 z-10 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent" />
+        <div className={birlesik(
+          'absolute inset-0 bg-gradient-to-t to-transparent',
+          temaKoyuMu 
+            ? 'from-neutral-900 via-neutral-900/80' 
+            : 'from-white via-white/80'
+        )} />
         <div className="absolute inset-0 backdrop-blur-sm [mask-image:linear-gradient(to_top,black_30%,transparent_100%)]" />
       </div>
       

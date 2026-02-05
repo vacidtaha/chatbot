@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { girisKullan } from '../context/AuthContext';
+import { temaKullan } from '../context/ThemeContext';
 import { sohbetKullan } from '../hooks/useChat';
 import YanMenu from '../components/Sidebar';
 import SohbetBasligi from '../components/ChatHeader';
 import MesajListesi from '../components/MessageList';
 import SohbetGirdisi from '../components/ChatInput';
 import BosDurum from '../components/EmptyState';
+import TemaSecimModal from '../components/ThemeSelectionModal';
+import { birlesik } from '../utils/cn';
 
 export default function SohbetSayfasi() {
   const { kullanici, cikisYap } = girisKullan();
+  const { temaKoyuMu } = temaKullan();
 
   const {
     sohbetler,
@@ -35,9 +39,16 @@ export default function SohbetSayfasi() {
   const streamingMi = suankiSohbet?.mesajlar.some(m => m.streamingMi) ?? false;
 
   return (
-    <div className="h-screen flex bg-neutral-950">
-      {/* Sidebar */}
-      <YanMenu
+    <>
+      {/* Tema Seçim Modalı */}
+      <TemaSecimModal />
+      
+      <div className={birlesik(
+        'h-screen flex',
+        temaKoyuMu ? 'bg-neutral-950' : 'bg-neutral-100'
+      )}>
+        {/* Sidebar */}
+        <YanMenu
         sohbetler={sohbetler}
         suankiSohbetId={suankiSohbetId}
         acikMi={sidebarAcik}
@@ -51,7 +62,10 @@ export default function SohbetSayfasi() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 bg-neutral-900">
+      <main className={birlesik(
+        'flex-1 flex flex-col min-w-0',
+        temaKoyuMu ? 'bg-neutral-900' : 'bg-white'
+      )}>
         <SohbetBasligi 
           yeniSohbetFn={yeniSohbetOlustur}
           sidebarAcikMi={sidebarAcik}
@@ -64,7 +78,8 @@ export default function SohbetSayfasi() {
         )}
 
         <SohbetGirdisi gonderFn={mesajIsle} devreDisi={yukleniyor} streamingMi={streamingMi} />
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }

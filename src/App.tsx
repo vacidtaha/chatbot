@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GirisProvider, girisKullan } from './context/AuthContext';
+import { TemaProvider } from './context/ThemeContext';
 import GirisSayfasi from './pages/LoginPage';
 import SohbetSayfasi from './pages/ChatPage';
 
@@ -43,7 +44,9 @@ export default function Uygulama() {
   return (
     <BrowserRouter>
       <GirisProvider>
-        <UygulamaRotalari />
+        <TemaProvider>
+          <UygulamaRotalari />
+        </TemaProvider>
       </GirisProvider>
     </BrowserRouter>
   );

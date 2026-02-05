@@ -16,7 +16,7 @@ export function sohbetKullan() {
   const [sohbetler, sohbetleriAyarla] = useState<SohbetOturumu[]>(() => kayitliSohbetleriGetir());
   const [suankiSohbetId, suankiIdAyarla] = useState<string | null>(() => suankiSohbetIdGetir());
   const [yukleniyor, yukleniyorAyarla] = useState(false);
-  const streamingRef = useRef<NodeJS.Timeout | null>(null);
+  const streamingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const suankiSohbet = sohbetler.find((s) => s.id === suankiSohbetId) || null;
 
