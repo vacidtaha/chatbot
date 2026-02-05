@@ -12,7 +12,7 @@ export default function SohbetBasligi({ yeniSohbetFn, sidebarAcikMi }: SohbetBas
   return (
     <header className={birlesik(
       'h-14 flex items-center justify-between pr-4 shrink-0 transition-all',
-      temaKoyuMu ? 'bg-neutral-900' : 'bg-white border-b border-neutral-200',
+      temaKoyuMu ? 'bg-neutral-900' : 'bg-white',
       sidebarAcikMi ? 'pl-4' : 'pl-14'
     )}>
       <div className="flex items-center gap-3">

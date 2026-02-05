@@ -92,7 +92,7 @@ export default function MesajBalonu({ mesaj }: MesajBalonuProps) {
             kullaniciMi 
               ? temaKoyuMu
                 ? 'rounded-2xl px-5 py-4 bg-neutral-700 text-neutral-100'
-                : 'rounded-2xl px-5 py-4 bg-neutral-200 text-neutral-900'
+                : 'rounded-2xl px-5 py-4 bg-neutral-100 text-neutral-900'
               : hataMi 
                 ? temaKoyuMu ? 'text-red-300' : 'text-red-600'
                 : temaKoyuMu ? 'text-neutral-100' : 'text-neutral-900'
