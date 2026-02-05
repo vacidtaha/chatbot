@@ -83,7 +83,7 @@ export default function YanMenu({
       <aside
         className={birlesik(
           'fixed lg:relative inset-y-0 left-0 z-50 w-72 flex flex-col transition-all duration-300 ease-out',
-          temaKoyuMu ? 'bg-neutral-950' : 'bg-neutral-50 border-r border-neutral-200',
+          temaKoyuMu ? 'bg-neutral-950' : 'bg-neutral-50',
           acikMi ? 'translate-x-0' : '-translate-x-full lg:w-0 lg:overflow-hidden'
         )}
       >
