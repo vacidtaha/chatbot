@@ -211,8 +211,8 @@ export default function GirisSayfasi() {
         </div>
       </div>
 
-      {/* Sağ Taraf - Açık Gri Zemin */}
-      <div className="flex-1 flex items-center justify-center bg-neutral-100">
+      {/* Sağ Taraf - Koyu Gri Zemin */}
+      <div className="flex-1 flex items-center justify-center bg-neutral-900">
         <div className="w-full max-w-sm px-8">
           {/* Mobile Logo */}
           <div className="lg:hidden flex flex-col items-center mb-12">
@@ -232,10 +232,10 @@ export default function GirisSayfasi() {
               /* Kullanıcı Adı Adımı */
               <div>
                 <div className="mb-10">
-                  <h2 className="text-4xl font-medium text-neutral-900 tracking-tight">
+                  <h2 className="text-4xl font-medium text-white tracking-tight">
                     Giriş Yap
                   </h2>
-                  <p className="text-neutral-500 mt-3 text-base">
+                  <p className="text-neutral-400 mt-3 text-base">
                     Kurumsal hesabınızla devam edin
                   </p>
           </div>
@@ -244,7 +244,7 @@ export default function GirisSayfasi() {
             <div>
                     <label 
                       htmlFor="kullaniciAdi" 
-                      className="block text-sm font-medium text-neutral-500 mb-2 uppercase tracking-wider"
+                      className="block text-sm font-medium text-neutral-400 mb-2 uppercase tracking-wider"
                     >
                 Kullanıcı Adı
               </label>
@@ -263,11 +263,11 @@ export default function GirisSayfasi() {
                         onBlur={() => odaklanmisGirdiAyarla(null)}
                         placeholder="örn: kullanici"
                         disabled={yukleniyor}
-                        className={`w-full px-4 py-4 bg-white rounded-md text-neutral-900 text-base placeholder-neutral-400 transition-all duration-200 border-2 ${
+                        className={`w-full px-4 py-4 bg-neutral-800 rounded-md text-white text-base placeholder-neutral-500 transition-all duration-200 border-2 ${
                           kullaniciHatali
-                            ? 'border-red-500 bg-red-50'
+                            ? 'border-red-500 bg-red-900/30'
                             : odaklanmisGirdi === 'kullaniciAdi'
-                              ? 'border-neutral-400 shadow-lg'
+                              ? 'border-neutral-600 shadow-lg'
                               : 'border-transparent shadow-sm hover:shadow-md'
                         } ${yukleniyor ? 'opacity-50' : ''}`}
                 autoFocus
@@ -281,7 +281,7 @@ export default function GirisSayfasi() {
             <button
               type="submit"
               disabled={yukleniyor}
-                    className="w-full py-4 px-4 bg-neutral-900 text-white rounded-md font-medium text-base hover:bg-black focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 focus:ring-offset-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] mt-8"
+                    className="w-full py-4 px-4 bg-neutral-700 text-neutral-200 rounded-md font-medium text-base hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] mt-8"
             >
               {yukleniyor ? (
                 <span className="flex items-center justify-center gap-2">
@@ -298,8 +298,8 @@ export default function GirisSayfasi() {
           </form>
 
                 {/* Footer */}
-                <div className="mt-12 pt-8 border-t border-neutral-200">
-                  <p className="text-center text-sm text-neutral-400">
+                <div className="mt-12 pt-8 border-t border-neutral-700">
+                  <p className="text-center text-sm text-neutral-500">
                     Sadece yetkili Taytech personeli erişebilir.
                   </p>
                 </div>
@@ -309,7 +309,7 @@ export default function GirisSayfasi() {
               <div>
                 <button
                   onClick={geriDon}
-                  className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-colors mb-8"
+                  className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-8"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -318,17 +318,17 @@ export default function GirisSayfasi() {
                 </button>
 
                 <div className="mb-10">
-                  <h2 className="text-4xl font-medium text-neutral-900 tracking-tight">
+                  <h2 className="text-4xl font-medium text-white tracking-tight">
                     PIN Kodunuz
                   </h2>
-                  <p className="text-neutral-500 mt-3 text-base">
+                  <p className="text-neutral-400 mt-3 text-base">
                     6 haneli güvenlik kodunuzu girin
                   </p>
                 </div>
 
                 {/* PIN Kutuları */}
                 <div className="mb-8">
-                  <label className="block text-sm font-medium text-neutral-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-sm font-medium text-neutral-400 mb-2 uppercase tracking-wider">
                     Güvenlik Kodu
                   </label>
                   <div className="flex gap-2">
@@ -344,14 +344,14 @@ export default function GirisSayfasi() {
                         onKeyDown={(e) => pinTusBasimi(index, e)}
                         onPaste={index === 0 ? pinYapistir : undefined}
                         disabled={yukleniyor || basarili || hatali}
-                        className={`w-12 h-14 text-center text-2xl font-medium bg-white rounded-md transition-all duration-300 border-2 focus:outline-none ${
+                        className={`w-12 h-14 text-center text-2xl font-medium bg-neutral-800 text-white rounded-md transition-all duration-300 border-2 focus:outline-none ${
                           basarili
-                            ? 'border-green-500 bg-green-50 text-green-600'
+                            ? 'border-green-500 bg-green-900/30 text-green-400'
                             : hatali
-                              ? 'border-red-500 bg-red-50 text-red-600'
+                              ? 'border-red-500 bg-red-900/30 text-red-400'
                               : rakam
-                                ? 'border-neutral-400 shadow-md'
-                                : 'border-neutral-200 hover:border-neutral-300 focus:border-neutral-400 focus:shadow-lg'
+                                ? 'border-neutral-600 shadow-md'
+                                : 'border-neutral-700 hover:border-neutral-600 focus:border-neutral-500 focus:shadow-lg'
                         } ${yukleniyor ? 'opacity-50' : ''}`}
                       />
                     ))}
@@ -361,7 +361,7 @@ export default function GirisSayfasi() {
                 {/* Yükleniyor göstergesi */}
                 {yukleniyor && (
                   <div className="flex justify-center mb-6">
-                    <svg className="animate-spin h-6 w-6 text-neutral-900" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
@@ -371,13 +371,13 @@ export default function GirisSayfasi() {
                 {/* Başarılı mesajı */}
                 {basarili && (
                   <div className="flex flex-col items-center gap-3 mb-6">
-                    <div className="flex items-center justify-center gap-2 text-green-600">
+                    <div className="flex items-center justify-center gap-2 text-green-400">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-base font-medium">Giriş başarılı</span>
                     </div>
-                    <div className="flex items-center gap-2 text-neutral-500">
+                    <div className="flex items-center gap-2 text-neutral-400">
                       <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -389,7 +389,7 @@ export default function GirisSayfasi() {
 
                 {/* Hatalı mesajı */}
                 {hatali && (
-                  <div className="flex items-center justify-center gap-2 text-red-600 mb-6">
+                  <div className="flex items-center justify-center gap-2 text-red-400 mb-6">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -399,8 +399,8 @@ export default function GirisSayfasi() {
 
                 {/* Kullanıcı bilgisi */}
                 <div className="text-center mt-6">
-                  <p className="text-sm text-neutral-400">
-                    <span className="text-neutral-600 font-medium">{kullaniciAdi}</span> olarak giriş yapılıyor
+                  <p className="text-sm text-neutral-500">
+                    <span className="text-neutral-300 font-medium">{kullaniciAdi}</span> olarak giriş yapılıyor
                   </p>
                 </div>
               </div>
