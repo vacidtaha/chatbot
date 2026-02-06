@@ -82,8 +82,8 @@ export default function YanMenu({
       {/* Sidebar */}
       <aside
         className={birlesik(
-          'fixed lg:relative inset-y-0 left-0 z-50 w-72 flex flex-col transition-all duration-300 ease-out',
-          temaKoyuMu ? 'bg-neutral-950' : 'bg-neutral-50',
+          'fixed lg:relative inset-y-0 left-0 z-50 w-[500px] flex flex-col transition-all duration-300 ease-out border-r',
+          temaKoyuMu ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200',
           acikMi ? 'translate-x-0' : '-translate-x-full lg:w-0 lg:overflow-hidden'
         )}
       >
@@ -178,31 +178,28 @@ export default function YanMenu({
           )}
         </div>
 
-        {/* Footer - Minimal Kullanıcı Alanı */}
-        <div className="p-3">
-          <div className="relative">
+        {/* Footer - Kullanıcı Bilgisi */}
+        <div className="px-6 py-5 group">
+          <div className="flex items-center justify-between">
+            <p className={birlesik(
+              'text-sm',
+              temaKoyuMu ? 'text-neutral-500' : 'text-neutral-400'
+            )}>
+              <span className={birlesik(
+                'font-medium',
+                temaKoyuMu ? 'text-neutral-400' : 'text-neutral-500'
+              )}>{kullaniciAdi}</span> tarafından giriş yapılmıştır
+            </p>
             <button
               onClick={cikisYapFn}
               className={birlesik(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group',
-                temaKoyuMu ? 'hover:bg-neutral-800' : 'hover:bg-neutral-200'
+                'opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg text-xs font-medium',
+                temaKoyuMu 
+                  ? 'text-red-400 hover:bg-red-500/10' 
+                  : 'text-red-500 hover:bg-red-50'
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-sm font-medium">
-                {kullaniciAdi.charAt(0).toUpperCase()}
-              </div>
-              <span className={birlesik(
-                'flex-1 text-sm text-left truncate',
-                temaKoyuMu ? 'text-neutral-300' : 'text-neutral-700'
-              )}>{kullaniciAdi}</span>
-              <svg className={birlesik(
-                'w-4 h-4 group-hover:text-red-400 transition-colors',
-                temaKoyuMu ? 'text-neutral-500' : 'text-neutral-400'
-              )} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" x2="9" y1="12" y2="12" />
-              </svg>
+              Çıkış
             </button>
           </div>
         </div>

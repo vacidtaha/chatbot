@@ -52,10 +52,10 @@ export default function BosDurum({ oneriFn }: BosDurumProps) {
             key={soru}
             onClick={() => oneriFn(soru)}
             className={birlesik(
-              'px-4 py-2.5 rounded-full border text-sm transition-all',
+              'px-4 py-2.5 rounded-full text-sm transition-all',
               temaKoyuMu 
-                ? 'bg-neutral-800/50 border-neutral-700/50 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 hover:border-neutral-600' 
-                : 'bg-neutral-100 border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200 hover:border-neutral-300'
+                ? 'bg-neutral-800 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700' 
+                : 'bg-neutral-100 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200'
             )}
           >
             {soru}

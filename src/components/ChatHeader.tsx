@@ -15,27 +15,15 @@ export default function SohbetBasligi({ yeniSohbetFn, sidebarAcikMi }: SohbetBas
       temaKoyuMu ? 'bg-neutral-900' : 'bg-white',
       sidebarAcikMi ? 'pl-4' : 'pl-14'
     )}>
-      <div className="flex items-center gap-3">
-        {/* Model Selector Style Button */}
-        <button className={birlesik(
-          'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors',
-          temaKoyuMu ? 'hover:bg-neutral-800' : 'hover:bg-neutral-100'
-        )}>
-          <span className={birlesik(
-            'text-sm font-medium',
-            temaKoyuMu ? 'text-neutral-200' : 'text-neutral-800'
-          )}>Ercüment</span>
-          <span className={birlesik(
-            'text-xs',
-            temaKoyuMu ? 'text-neutral-500' : 'text-neutral-400'
-          )}>v1.0</span>
-          <svg className={birlesik(
-            'w-4 h-4',
-            temaKoyuMu ? 'text-neutral-500' : 'text-neutral-400'
-          )} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
-        </button>
+      <div className="flex items-center gap-2">
+        <span className={birlesik(
+          'text-sm font-medium',
+          temaKoyuMu ? 'text-neutral-200' : 'text-neutral-800'
+        )}>Ercüment</span>
+        <span className={birlesik(
+          'text-xs',
+          temaKoyuMu ? 'text-neutral-500' : 'text-neutral-400'
+        )}>v1.0</span>
       </div>
 
       <div className="flex items-center gap-2">

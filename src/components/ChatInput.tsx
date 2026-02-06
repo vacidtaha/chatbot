@@ -47,27 +47,12 @@ export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false
       <div className="max-w-3xl mx-auto px-4 py-4">
         {/* Input Container - Pill Shape */}
         <div className={birlesik(
-          'relative rounded-full border transition-all shadow-lg',
+          'relative rounded-full transition-all',
           temaKoyuMu 
-            ? 'bg-neutral-800 border-neutral-700 focus-within:border-neutral-500' 
-            : 'bg-neutral-100 border-neutral-200 focus-within:border-neutral-400'
+            ? 'bg-neutral-800' 
+            : 'bg-neutral-100'
         )}>
           <div className="flex items-end">
-            {/* Attachment Button */}
-            <button 
-              className={birlesik(
-                'p-4 transition-colors',
-                temaKoyuMu 
-                  ? 'text-neutral-500 hover:text-neutral-300' 
-                  : 'text-neutral-400 hover:text-neutral-600'
-              )}
-              title="Dosya ekle"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-              </svg>
-            </button>
-
             {/* Textarea */}
             <textarea
               ref={textareaRef}
@@ -78,7 +63,7 @@ export default function SohbetGirdisi({ gonderFn, devreDisi, streamingMi = false
               disabled={devreDisi}
               rows={1}
               className={birlesik(
-                'flex-1 resize-none bg-transparent py-4 pr-2 text-base focus:outline-none disabled:opacity-50 min-h-[56px] max-h-[200px]',
+                'flex-1 resize-none bg-transparent py-4 pl-5 pr-2 text-base focus:outline-none disabled:opacity-50 min-h-[56px] max-h-[200px]',
                 temaKoyuMu 
                   ? 'text-neutral-100 placeholder-neutral-500' 
                   : 'text-neutral-900 placeholder-neutral-400'
